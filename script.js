@@ -27,6 +27,8 @@ let solutionGrid = [];
 let firstClick = true;
 let gameEnded = false;
 
+let highlightedTileCoords = undefined;
+
 function randint(a, b=0) {
 	// a => number
 	// b => number
@@ -131,6 +133,11 @@ function resetGrids() {
 function displayTile(tileCoords) {
 	// tileCoords => Coords of a tile on game grid
 	// displayTile(tileCoords) => draw the tile on canvas
+
+	if (tileCoords == undefined) {
+		return;
+	}
+
 	const tileType = gameGrid[tileCoords.x][tileCoords.y];
 	const tileDisplayCoords = new Coords(tileCoords.x * (canvas.width / NUMBER_TILES_WIDTH), tileCoords.y * (canvas.width / NUMBER_TILES_WIDTH));
 
@@ -331,6 +338,35 @@ canvas.onclick = (e) => {
 	}
 
 	digTile(tileCoords);
+}
+
+function removeHighlight() {
+	// Display tile highlighted to crush highlight layer
+	displayTile(highlightedTileCoords);
+}
+
+function highlightTile(tileCoords) {
+	removeHighlight();
+
+	ctx.fillStyle = "white";
+	ctx.globalAlpha = 0.5;
+
+	ctx.fillRect(tileCoords.x * (canvas.width / NUMBER_TILES_WIDTH), tileCoords.y * (canvas.width / NUMBER_TILES_WIDTH), (canvas.width / NUMBER_TILES_WIDTH), (canvas.width / NUMBER_TILES_WIDTH));
+
+	ctx.globalAlpha = 1;
+
+	highlightedTileCoords = tileCoords;
+}
+
+canvas.onmousemove = (e) => {
+	const mouseCoords = new Coords(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+	const tileCoords = new Coords(Math.floor(mouseCoords.x / (canvas.width / NUMBER_TILES_WIDTH)), Math.floor(mouseCoords.y / (canvas.width / NUMBER_TILES_WIDTH)));
+
+	highlightTile(tileCoords);
+}
+
+canvas.onmouseout = (e) => {
+	removeHighlight();
 }
 
 startGame();
